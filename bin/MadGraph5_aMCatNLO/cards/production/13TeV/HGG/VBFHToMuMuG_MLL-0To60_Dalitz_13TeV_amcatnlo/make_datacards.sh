@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for MH in 60 65 70 75 80 85 90 95 100 105 110 115 120 123 124 125 126 127 130; do
+for MH in 120 125 130; do
 
 d=VBFHToMuMuG_M${MH}_MLL-0To60_Dalitz_13TeV-amcatnlo
 
