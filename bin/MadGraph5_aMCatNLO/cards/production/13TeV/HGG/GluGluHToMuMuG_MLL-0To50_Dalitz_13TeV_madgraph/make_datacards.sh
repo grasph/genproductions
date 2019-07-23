@@ -99,7 +99,7 @@ average = event_norm ! Normalize events to sum or average to the X sect.
 # PDF choice: this automatically fixes also alpha_s(MZ) and its evol.  *
 #***********************************************************************
  lhapdf    = pdlabel   ! PDF set                                     
-$DEFAULT_PDF_SETS = lhaid     ! if pdlabel=lhapdf, this is the lhapdf number
+\$DEFAULT_PDF_SETS = lhaid     ! if pdlabel=lhapdf, this is the lhapdf number
 #***********************************************************************
 # Include the NLO Monte Carlo subtr. terms for the following parton    *
 # shower (HERWIG6 | HERWIGPP | PYTHIA6Q | PYTHIA6PT | PYTHIA8)         *
@@ -136,7 +136,7 @@ $DEFAULT_PDF_SETS = lhaid     ! if pdlabel=lhapdf, this is the lhapdf number
   2.0     = rw_Rscale_up     ! upper bound for ren scale variations
   0.5     = rw_Fscale_down   ! lower bound for fact scale variations
   2.0     = rw_Fscale_up     ! upper bound for fact scale variations
-$DEFAULT_PDF_MEMBERS = reweight_PDF     ! reweight to get PDF uncertainty
+\$DEFAULT_PDF_MEMBERS = reweight_PDF     ! reweight to get PDF uncertainty
       ! First of the error PDF sets 
       ! Last of the error PDF sets
 #***********************************************************************
