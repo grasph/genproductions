@@ -1,276 +1,3 @@
-#!/bin/bash
-
-for QT_ in "0 75" "75 80" "80 85" "85 90" "90 95" "95 100" "100 200" "200 400" "400 800" "800 2000";do
-QT=( ${QT_} )
-label="${QT[0]}to${QT[1]}"
-d="DYJetsToEE_M-50_LTbinned_${label}_5f_LO_TuneCP5_13TeV-madgraph"
-mkdir "$d"
-
-cat > $d/DYJets_M50_LT_${label}_proc_card.dat <<EOF
-import model sm-ckm_no_b_mass
-define l+ = e+
-define l- = e-
-# Specify process(es) to run
-generate p p > l+ l- / h @0
-add process p p > l+ l- j / h @1
-add process p p > l+ l- j j / h @2
-add process p p > l+ l- j j j / h @3
-add process p p > l+ l- j j j j / h @4
-# Output processes to MadEvent directory
-output DYJets_M50_LT_${label} -nojpeg
-EOF
-
-cat > $d/DYJets_M50_LT_${label}_run_card.dat <<EOF
-#*********************************************************************
-#                       MadGraph/MadEvent                            *
-#                  http://madgraph.hep.uiuc.edu                      *
-#                                                                    *
-#                        run_card.dat                                *
-#                                                                    *
-#  This file is used to set the parameters of the run.               *
-#                                                                    *
-#  Some notation/conventions:                                        *
-#                                                                    *
-#   Lines starting with a '# ' are info or comments                  *
-#                                                                    *
-#   mind the format:   value    = variable     ! comment             *
-#*********************************************************************
-#
-#*******************                                                 
-# Running parameters
-#*******************                                                 
-#                                                                    
-#*********************************************************************
-# Tag name for the run (one word)                                    *
-#*********************************************************************
-  DY     = run_tag ! name of the run 
-#*********************************************************************
-# Run to generate the grid pack                                      *
-#*********************************************************************
-  .true.     = gridpack  !True = setting up the grid pack
-#*********************************************************************
-# Number of events and rnd seed                                      *
-# Warning: Do not generate more than 1M events in a single run       *
-# If you want to run Pythia, avoid more than 50k events in a run.    *
-#*********************************************************************
-    1500       = nevents ! Number of unweighted events requested
-      0       = iseed   ! rnd seed (0=assigned automatically=default))
-#*********************************************************************
-# Collider type and energy                                           *
-# lpp: 0=No PDF, 1=proton, -1=antiproton, 2=photon from proton,      *
-#                                         3=photon from electron     *
-#*********************************************************************
-        1     = lpp1    ! beam 1 type 
-        1     = lpp2    ! beam 2 type
-     6500     = ebeam1  ! beam 1 total energy in GeV
-     6500     = ebeam2  ! beam 2 total energy in GeV
-#*********************************************************************
-# Beam polarization from -100 (left-handed) to 100 (right-handed)    *
-#*********************************************************************
-        0     = polbeam1 ! beam polarization for beam 1
-        0     = polbeam2 ! beam polarization for beam 2
-#*********************************************************************
-# PDF CHOICE: this automatically fixes also alpha_s and its evol.    *
-#*********************************************************************
- 'lhapdf'    = pdlabel     ! PDF set                                  
-  263000    = lhaid     ! if pdlabel=lhapdf, this is the lhapdf number 
-#*********************************************************************
-# Renormalization and factorization scales                           *
-#*********************************************************************
- F        = fixed_ren_scale  ! if .true. use fixed ren scale
- F        = fixed_fac_scale  ! if .true. use fixed fac scale
- 91.1880  = scale            ! fixed ren scale
- 91.1880  = dsqrt_q2fact1    ! fixed fact scale for pdf1
- 91.1880  = dsqrt_q2fact2    ! fixed fact scale for pdf2
- 1        = scalefact        ! scale factor for event-by-event scales
-#*********************************************************************
-# Matching - Warning! ickkw > 1 is still beta
-#*********************************************************************
- 1        = ickkw            ! 0 no matching, 1 MLM, 2 CKKW matching
- 1        = highestmult      ! for ickkw=2, highest mult group
- 1        = ktscheme         ! for ickkw=1, 1 Durham kT, 2 Pythia pTE
- 1        = alpsfact         ! scale factor for QCD emission vx
- F        = chcluster        ! cluster only according to channel diag
- F        = pdfwgt           ! for ickkw=1, perform pdf reweighting
- 5        = asrwgtflavor     ! highest quark flavor for a_s reweight
- T        = clusinfo         ! include clustering tag in output
- 3.0      = lhe_version       ! Change the way clustering information pass to shower.        
-#*********************************************************************
-# Automatic ptj and mjj cuts if xqcut > 0
-# (turn off for VBF and single top processes)
-#**********************************************************
-   F  = auto_ptj_mjj  ! Automatic setting of ptj and mjj
-#**********************************************************
-#                                                                    
-#**********************************
-# BW cutoff (M+/-bwcutoff*Gamma)
-#**********************************
-  15  = bwcutoff      ! (M+/-bwcutoff*Gamma)
-#**********************************************************
-# Apply pt/E/eta/dr/mij cuts on decay products or not
-# (note that etmiss/ptll/ptheavy/ht/sorted cuts always apply)
-#**********************************************************
-   F  = cut_decays    ! Cut decay products 
-#*************************************************************
-# Number of helicities to sum per event (0 = all helicities)
-# 0 gives more stable result, but longer run time (needed for
-# long decay chains e.g.).
-# Use >=2 if most helicities contribute, e.g. pure QCD.
-#*************************************************************
-   0  = nhel          ! Number of helicities used per event
-#*******************                                                 
-# Standard Cuts
-#*******************                                                 
-#                                                                    
-#*********************************************************************
-# Minimum and maximum pt's (for max, -1 means no cut)                *
-#*********************************************************************
- 0.01  = ptj       ! minimum pt for the jets 
-  0  = ptb       ! minimum pt for the b 
- 10  = pta       ! minimum pt for the photons 
- 0  = ptl       ! minimum pt for the charged leptons 
-  0  = misset    ! minimum missing Et (sum of neutrino's momenta)
-  0  = ptheavy   ! minimum pt for one heavy final state
- 1.0 = ptonium   ! minimum pt for the quarkonium states
- 1d5  = ptjmax    ! maximum pt for the jets
- 1d5  = ptbmax    ! maximum pt for the b
- 1d5  = ptamax    ! maximum pt for the photons
- 1d5  = ptlmax    ! maximum pt for the charged leptons
- 1d5  = missetmax ! maximum missing Et (sum of neutrino's momenta)
-#*********************************************************************
-# Minimum and maximum E's (in the lab frame)                         *
-#*********************************************************************
-  0  = ej     ! minimum E for the jets 
-  0  = eb     ! minimum E for the b 
-  0  = ea     ! minimum E for the photons 
-  0  = el     ! minimum E for the charged leptons 
- 1d5   = ejmax ! maximum E for the jets
- 1d5   = ebmax ! maximum E for the b
- 1d5   = eamax ! maximum E for the photons
- 1d5   = elmax ! maximum E for the charged leptons
-#*********************************************************************
-# Maximum and minimum absolute rapidity (for max, -1 means no cut)   *
-#*********************************************************************
-   5  = etaj    ! max rap for the jets 
-  1d2  = etab    ! max rap for the b
- 2.5  = etaa    ! max rap for the photons 
- 1d2  = etal    ! max rap for the charged leptons 
- 0.6  = etaonium ! max rap for the quarkonium states
-   0  = etajmin ! min rap for the jets
-   0  = etabmin ! min rap for the b
-   0  = etaamin ! min rap for the photons
-   0  = etalmin ! main rap for the charged leptons
-#*********************************************************************
-# Minimum and maximum DeltaR distance                                *
-#*********************************************************************
- 0.0 = drjj    ! min distance between jets 
- 0   = drbb    ! min distance between b's 
- 0 = drll    ! min distance between leptons 
- 0.4 = draa    ! min distance between gammas 
- 0   = drbj    ! min distance between b and jet 
- 0.4 = draj    ! min distance between gamma and jet 
- 0 = drjl    ! min distance between jet and lepton 
- 0   = drab    ! min distance between gamma and b 
- 0   = drbl    ! min distance between b and lepton 
- 0.4 = dral    ! min distance between gamma and lepton 
- 1d2  = drjjmax ! max distance between jets
- 1d2  = drbbmax ! max distance between b's
- 1d2  = drllmax ! max distance between leptons
- 1d2  = draamax ! max distance between gammas
- 1d2  = drbjmax ! max distance between b and jet
- 1d2  = drajmax ! max distance between gamma and jet
- 1d2  = drjlmax ! max distance between jet and lepton
- 1d2  = drabmax ! max distance between gamma and b
- 1d2  = drblmax ! max distance between b and lepton
- 1d2  = dralmax ! maxdistance between gamma and lepton
-#*********************************************************************
-# Minimum and maximum invariant mass for pairs                       *
-#*********************************************************************
- 0   = mmjj    ! min invariant mass of a jet pair 
- 0   = mmbb    ! min invariant mass of a b pair 
- 0   = mmaa    ! min invariant mass of gamma gamma pair
- 50   = mmll    ! min invariant mass of l+l- (same flavour) lepton pair
- 1d5  = mmjjmax ! max invariant mass of a jet pair
- 1d5  = mmbbmax ! max invariant mass of a b pair
- 1d5  = mmaamax ! max invariant mass of gamma gamma pair
- 1000  = mmllmax ! max invariant mass of l+l- (same flavour) lepton pair
-#*********************************************************************
-# Minimum and maximum invariant mass for all letpons                 *
-#*********************************************************************
- 0   = mmnl    ! min invariant mass for all letpons (l+- and vl) 
- 1d5  = mmnlmax ! max invariant mass for all letpons (l+- and vl) 
-#*********************************************************************
-# Minimum and maximum pt for 4-momenta sum of leptons                *
-#*********************************************************************
- 0   = ptllmin  ! Minimum pt for 4-momenta sum of leptons(l and vl)
- 1d5  = ptllmax  ! Maximum pt for 4-momenta sum of leptons(l and vl)
-#*********************************************************************
-# Inclusive cuts                                                     *
-#*********************************************************************
- 0  = xptj ! minimum pt for at least one jet  
- 0  = xptb ! minimum pt for at least one b 
- 0  = xpta ! minimum pt for at least one photon 
- 0  = xptl ! minimum pt for at least one charged lepton 
-#*********************************************************************
-# Control the pt's of the jets sorted by pt                          *
-#*********************************************************************
- 0   = ptj1min ! minimum pt for the leading jet in pt
- 0   = ptj2min ! minimum pt for the second jet in pt
- 0   = ptj3min ! minimum pt for the third jet in pt
- 0   = ptj4min ! minimum pt for the fourth jet in pt
- 1d5  = ptj1max ! maximum pt for the leading jet in pt 
- 1d5  = ptj2max ! maximum pt for the second jet in pt
- 1d5  = ptj3max ! maximum pt for the third jet in pt
- 1d5  = ptj4max ! maximum pt for the fourth jet in pt
- 0   = cutuse  ! reject event if fails any (0) / all (1) jet pt cuts
-#*********************************************************************
-# Control the pt's of leptons sorted by pt                           *
-#*********************************************************************
- 0   = ptl1min ! minimum pt for the leading lepton in pt
- 0   = ptl2min ! minimum pt for the second lepton in pt
- 0   = ptl3min ! minimum pt for the third lepton in pt
- 0   = ptl4min ! minimum pt for the fourth lepton in pt
- 1d5  = ptl1max ! maximum pt for the leading lepton in pt 
- 1d5  = ptl2max ! maximum pt for the second lepton in pt
- 1d5  = ptl3max ! maximum pt for the third lepton in pt
- 1d5  = ptl4max ! maximum pt for the fourth lepton in pt
-#*********************************************************************
-# Control the Ht(k)=Sum of k leading jets                            *
-#*********************************************************************
- 0  = htjmin ! minimum jet HT=Sum(jet pt)
- 1d5  = htjmax ! maximum jet HT=Sum(jet pt)
- 0   = ihtmin  !inclusive Ht for all partons (including b)
- 1d5  = ihtmax  !inclusive Ht for all partons (including b)
- 0   = ht2min ! minimum Ht for the two leading jets
- 0   = ht3min ! minimum Ht for the three leading jets
- 0   = ht4min ! minimum Ht for the four leading jets
- 1d5  = ht2max ! maximum Ht for the two leading jets
- 1d5  = ht3max ! maximum Ht for the three leading jets
- 1d5  = ht4max ! maximum Ht for the four leading jets
-#*********************************************************************
-# WBF cuts                                                           *
-#*********************************************************************
- 0   = xetamin ! minimum rapidity for two jets in the WBF case  
- 0   = deltaeta ! minimum rapidity for two jets in the WBF case 
-#*********************************************************************
-# maximal pdg code for quark to be considered as a light jet         *
-# (otherwise b cuts are applied)                                     *
-#*********************************************************************
- 5 = maxjetflavor    ! Maximum jet pdg code
-#*********************************************************************
-# Jet measure cuts                                                   *
-#*********************************************************************
- 10   = xqcut   ! minimum kt jet measure between partons
-#*********************************************************************
-# Store info for systematics studies                                 *
-# WARNING: If use_syst is T, matched Pythia output is                *
-#          meaningful ONLY if plotted taking matchscale              *
-#          reweighting into account!                                 *
-#*********************************************************************
-   T  = use_syst      ! Enable systematics studies
-EOF
-
-cat > "$d/DYJets_M50_LT_${label}_cuts.f" <<EOF
       logical function pass_point(p)
 c************************************************************************
 c     This function is called from sample to see if it needs to 
@@ -368,7 +95,7 @@ C VARIABLES FOR KT CUT
       double precision ptll_min(nexternal,nexternal),ptll_max(nexternal,nexternal)
       double precision inclHtmin,inclHtmax
       common/to_cuts/  etmin, emin, etamax, r2min, s_min,
-     \$     etmax, emax, etamin, r2max, s_max, ptll_min, ptll_max, inclHtmin,inclHtmax
+     $     etmax, emax, etamin, r2max, s_max, ptll_min, ptll_max, inclHtmin,inclHtmax
 
       double precision ptjmin4(4),ptjmax4(4),htjmin4(2:4),htjmax4(2:4)
       logical jetor
@@ -399,7 +126,7 @@ C
       COMMON/TO_CUTSDONE/CUTSDONE,CUTSPASSED
       DATA CUTSDONE,CUTSPASSED/.FALSE.,.FALSE./
 
-C \$B\$ MW_NEW_DEF \$E\$ !this is a tag for MadWeight
+C $B$ MW_NEW_DEF $E$ !this is a tag for MadWeight
 
       double precision xqcutij(nexternal,nexternal),xqcuti(nexternal)
       common/to_xqcuts/xqcutij,xqcuti
@@ -562,7 +289,7 @@ c         passcuts=.false.
 c         return
 c      endif
 
-C \$B\$ DESACTIVATE_CUT \$E\$ !This is a tag for MadWeight
+C $B$ DESACTIVATE_CUT $E$ !This is a tag for MadWeight
 
       if(debug) write (*,*) '============================='
       if(debug) write (*,*) ' EVENT STARTS TO BE CHECKED  '
@@ -572,7 +299,7 @@ c     p_t min & max cuts
 c     
       do i=nincoming+1,nexternal
          if(debug) write (*,*) 'pt(',i,')=',pt(p(0,i)),'   ',etmin(i),
-     \$        ':',etmax(i)
+     $        ':',etmax(i)
          notgood=(pt(p(0,i)) .lt. etmin(i)).or.
      &        (etmax(i).ge.0d0.and.pt(p(0,i)) .gt. etmax(i))
          if (notgood) then
@@ -684,7 +411,7 @@ c
             if(r2min(j,i).gt.0.or.r2max(j,i).ge.0d0) then
                tmp=r2(p(0,i),p(0,j))
                notgood=(tmp .lt. r2min(j,i)).or.
-     \$              (r2max(j,i).ge.0d0 .and. tmp .gt. r2max(j,i))
+     $              (r2max(j,i).ge.0d0 .and. tmp .gt. r2max(j,i))
                if (notgood) then
                   if(debug) write (*,*) i,j,' -> fails'
                   passcuts=.false.
@@ -704,7 +431,7 @@ c
             if(ptll_min(j,i).gt.0.or.ptll_max(j,i).ge.0d0) then
                tmp=PtDot(p(0,i),p(0,j))
                notgood=(tmp .lt. ptll_min(j,i).or.
-     \$              ptll_max(j,i).ge.0d0 .and. tmp.gt.ptll_max(j,i))
+     $              ptll_max(j,i).ge.0d0 .and. tmp.gt.ptll_max(j,i))
                if (notgood) then
                   if(debug) write (*,*) i,j,' -> fails'
                   passcuts=.false.
@@ -728,7 +455,7 @@ c
                tmp=SumDot(p(0,i),p(0,j),+1d0)
                if(s_min(j,i).le.s_max(j,i) .or. s_max(j,i).lt.0d0)then
                   notgood=(tmp .lt. s_min(j,i).or.
-     \$                 s_max(j,i).ge.0d0 .and. tmp .gt. s_max(j,i)) 
+     $                 s_max(j,i).ge.0d0 .and. tmp .gt. s_max(j,i)) 
                   if (notgood) then
                      if(debug) write (*,*) i,j,' -> fails'
                      passcuts=.false.
@@ -745,7 +472,7 @@ c
             endif
          enddo
       enddo
-C     \$B\$DESACTIVATE_BW_CUT\$B\$ This is a Tag for MadWeight
+C     $B$DESACTIVATE_BW_CUT$B$ This is a Tag for MadWeight
 c     
 c     B.W. phase space cuts
 c     
@@ -756,7 +483,7 @@ c     JA 4/8/11 always check pass_bw
          if(debug) write (*,*) ' pass_bw -> fails'
          return
       endif
-C     \$E\$DESACTIVATE_BW_CUT\$E\$ This is a Tag for MadWeight
+C     $E$DESACTIVATE_BW_CUT$E$ This is a Tag for MadWeight
         CUTSPASSED=.FALSE.
 C     
 C     maximal and minimal pt of the jets sorted by pt
@@ -859,9 +586,9 @@ C----------------------------------------------------------------------------
 
 c- check existance of jets if jet cuts are on
       if(njets.lt.1.and.(htjmin.gt.0.or.ptj1min.gt.0).or.
-     \$     njets.lt.2.and.ptj2min.gt.0.or.
-     \$     njets.lt.3.and.ptj3min.gt.0.or.
-     \$     njets.lt.4.and.ptj4min.gt.0)then
+     $     njets.lt.2.and.ptj2min.gt.0.or.
+     $     njets.lt.3.and.ptj3min.gt.0.or.
+     $     njets.lt.4.and.ptj4min.gt.0)then
          if(debug) write (*,*) i, ' too few jets -> fails'
          passcuts=.false.
          return
@@ -891,18 +618,18 @@ c
       
       do i=1,min(njets,4)
             if(debug) write (*,*) i,ptjet(i), '   ',ptjmin4(i),
-     \$        ':',ptjmax4(i)
+     $        ':',ptjmax4(i)
          if(jetor) then     
 c---  if one of the jets does not pass, the event is rejected
             notgood=notgood.or.(ptjmax4(i).ge.0d0 .and.
-     \$           ptjet(i).gt.ptjmax4(i)) .or.
-     \$           (ptjet(i).lt.ptjmin4(i))
+     $           ptjet(i).gt.ptjmax4(i)) .or.
+     $           (ptjet(i).lt.ptjmin4(i))
             if(debug) write (*,*) i,' notgood total:', notgood   
          else
 c---  all cuts must fail to reject the event
             notgood=notgood.and.(ptjmax4(i).ge.0d0 .and.
-     \$              ptjet(i).gt.ptjmax4(i) .or.
-     \$              (ptjet(i).lt.ptjmin4(i)))
+     $              ptjet(i).gt.ptjmax4(i) .or.
+     $              (ptjet(i).lt.ptjmin4(i)))
             if(debug) write (*,*) i,' notgood total:', notgood   
          endif
       enddo
@@ -925,7 +652,7 @@ C---------------------------
          if(debug.and.i.le.4) write (*,*) 'htmin ',i,' ', htjmin4(i),':',htjmax4(i)
          if(i.le.4)then
             if(htj.lt.htjmin4(i) .or.
-     \$        htjmax4(i).ge.0d0.and.htj.gt.htjmax4(i)) then
+     $        htjmax4(i).ge.0d0.and.htj.gt.htjmax4(i)) then
             if(debug) write (*,*) i, ' ht -> fails'
             passcuts=.false.
             return
@@ -950,7 +677,7 @@ C---------------------------
       endif !if there are heavyjets
 
       if(inclht.lt.inclHtmin.or.
-     \$     inclHtmax.ge.0d0.and.inclht.gt.inclHtmax)then
+     $     inclHtmax.ge.0d0.and.inclht.gt.inclHtmax)then
          if(debug) write (*,*) ' inclhtmin=',inclHtmin,' -> fails'
          passcuts=.false.
          return
@@ -962,8 +689,8 @@ c
       nleptons=0
 
       if(ptl1min.gt.0.or.ptl2min.gt.0.or.ptl3min.gt.0.or.ptl4min.gt.0.or.
-     \$     ptl1max.ge.0d0.or.ptl2max.ge.0d0.or.
-     \$     ptl3max.ge.0d0.or.ptl4max.ge.0d0) then
+     $     ptl1max.ge.0d0.or.ptl2max.ge.0d0.or.
+     $     ptl3max.ge.0d0.or.ptl4max.ge.0d0) then
 
 c     - fill ptlepton with the pt's of the leptons.
          do i=nincoming+1,nexternal
@@ -976,9 +703,9 @@ c     - fill ptlepton with the pt's of the leptons.
 
 c     - check existance of leptons if lepton cuts are on
          if(nleptons.lt.1.and.ptl1min.gt.0.or.
-     \$        nleptons.lt.2.and.ptl2min.gt.0.or.
-     \$        nleptons.lt.3.and.ptl3min.gt.0.or.
-     \$        nleptons.lt.4.and.ptl4min.gt.0)then
+     $        nleptons.lt.2.and.ptl2min.gt.0.or.
+     $        nleptons.lt.3.and.ptl3min.gt.0.or.
+     $        nleptons.lt.4.and.ptl4min.gt.0)then
             if(debug) write (*,*) i, ' too few leptons -> fails'
             passcuts=.false.
             return
@@ -998,8 +725,8 @@ c     - sort lepton pts
 
 c--- cut on sum_pt_leptons               
          if(nleptons.gt.1) then
-            if( (ptlepton(1) + ptlepton(2)).lt.${QT[0]}. .or.
-     \$           (ptlepton(1) + ptlepton(2)).gt.${QT[1]}. ) then
+            if( (ptlepton(1) + ptlepton(2)).lt.90. .or.
+     $           (ptlepton(1) + ptlepton(2)).gt.95. ) then
                passcuts=.false.
                return
             endif
@@ -1012,8 +739,8 @@ c--- cut on sum_pt_leptons
                if(debug) write (*,*) i,ptlepton(i), '   ',ptlmin4(i),':',ptlmax4(i)
 c---  if one of the leptons does not pass, the event is rejected
                notgood=notgood.or.
-     \$              (ptlmax4(i).ge.0d0.and.ptlepton(i).gt.ptlmax4(i)).or.
-     \$              (ptlepton(i).lt.ptlmin4(i))
+     $              (ptlmax4(i).ge.0d0.and.ptlepton(i).gt.ptlmax4(i)).or.
+     $              (ptlepton(i).lt.ptlmin4(i))
                if(debug) write (*,*) i,' notgood total:', notgood   
             enddo
 
@@ -1411,14 +1138,14 @@ c
 
 
 *
-* \$Id: sortzv.F,v 1.1.1.1 1996/02/15 17:49:50 mclareni Exp \$
+* $Id: sortzv.F,v 1.1.1.1 1996/02/15 17:49:50 mclareni Exp $
 *
-* \$Log: sortzv.F,v \$
+* $Log: sortzv.F,v $
 * Revision 1.1.1.1  1996/02/15 17:49:50  mclareni
 * Kernlib
 *
 *
-c\$\$\$#include "kerngen/pilot.h"
+c$$$#include "kerngen/pilot.h"
       SUBROUTINE SORTZV (A,INDEX,N1,MODE,NWAY,NSORT)
 C
 C CERN PROGLIB# M101    SORTZV          .VERSION KERNFOR  3.15  820113
@@ -1596,8 +1323,4 @@ C     ICMPCH=+1 IF HEX VALUES OF IC1 IS GREATER THAN IC2
  80   ICMPCH=1
       RETURN
       END
-
-EOF
-
-done
 

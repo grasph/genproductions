@@ -137,8 +137,6 @@ average = event_norm ! Normalize events to sum or average to the X sect.
   0.5     = rw_Fscale_down   ! lower bound for fact scale variations
   2.0     = rw_Fscale_up     ! upper bound for fact scale variations
 \$DEFAULT_PDF_MEMBERS = reweight_PDF     ! reweight to get PDF uncertainty
-      ! First of the error PDF sets 
-      ! Last of the error PDF sets
 #***********************************************************************
 # Merging - WARNING! Applies merging only at the hard-event level.     *
 # After showering an MLM-type merging should be applied as well.       *
