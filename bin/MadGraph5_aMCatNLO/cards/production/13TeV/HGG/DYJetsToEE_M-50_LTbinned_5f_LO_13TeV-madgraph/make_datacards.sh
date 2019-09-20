@@ -3,7 +3,7 @@
 for QT_ in "0 75" "75 80" "80 85" "85 90" "90 95" "95 100" "100 200" "200 400" "400 800" "800 2000";do
 QT=( ${QT_} )
 label="${QT[0]}to${QT[1]}"
-d="DYJetsToEE_M-50_LTbinned_${label}_5f_LO_TuneCP5_13TeV-madgraph-pythia8"
+d="DYJetsToEE_M-50_LTbinned_${label}_5f_LO_TuneCP5_13TeV-madgraph"
 mkdir "$d"
 
 cat > $d/DYJets_M50_LT_${label}_proc_card.dat <<EOF

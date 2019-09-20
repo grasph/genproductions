@@ -1,7 +1,7 @@
 #!/bin/bash
 
 for MH in 60 65 70 75 80 85 90 95 100 105 110 115 120 123 124 125 126 127 130; do
-d=GluGluHToGG_M${MH}_TuneCP5_13TeV-amcatnloFXFX-pythia8
+d=GluGluHToGG_M${MH}_TuneCP5_13TeV-amcatnloFXFX
 mkdir "$d"
 
 cat > $d/ggh012j_5f_NLO_FXFX_${MH}_customizecards.dat <<EOF

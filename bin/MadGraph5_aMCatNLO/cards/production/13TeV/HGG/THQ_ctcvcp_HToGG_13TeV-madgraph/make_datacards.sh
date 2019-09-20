@@ -2,7 +2,7 @@
 
 for MH in 120 123 124 125 126 127 130; do
 
-d=THQ_ctcvcp_HToGG_M${MH}_TuneCP5_13TeV-madgraph-pythia8
+d=THQ_ctcvcp_HToGG_M${MH}_TuneCP5_13TeV-madgraph
 
 mkdir "$d"
 
