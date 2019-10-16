@@ -1,29 +1,105 @@
 #!/bin/bash
 
 for MH in 60 65 70 75 80 85 90 95 100 105 110 115 120 123 124 125 126 127 130; do
-d=GluGluHToGG_M${MH}_TuneCP5_13TeV-amcatnloFXFX
+
+d=VBFHToGG_M${MH}_13TeV-amcatnlo
+
 mkdir "$d"
 
-cat > $d/ggh012j_5f_NLO_FXFX_${MH}_customizecards.dat <<EOF
+cat > $d/vbfH${MH}_NLO_HtoGG_customizecards.dat <<EOF
 set param_card mass 25 ${MH}.
 EOF
 
-cat > $d/ggh012j_5f_NLO_FXFX_${MH}_extramodels.dat <<EOF
-HC_NLO_X0_UFO-v1.3.zip
+
+cat > $d/vbfH${MH}_NLO_HtoGG_FKS_params.dat <<EOF
+! ==========================================================================
+! This file sets the different technical parameters intrinsic to the
+! FKS program and which controls the behaviour of the code at run
+! time.  The common user should not edit this file and only experts
+! should venture editing these parameters.
+! ==========================================================================
+!
+! ==========================================================================
+! Arbitrary numerical parameters used in the FKS formalism
+! ==========================================================================
+!
+! To be implemented by the FKS authors
+!
+! ==========================================================================
+! Parameters controlling the tests based on the IR poles comparison
+! ==========================================================================
+!
+! This threshold sets the limiting value for the comparison of the
+! relative difference of the IR pole from the OLP and the one computed
+! internaly by MadFKS.  The value below is used for the first PS
+! points to assess the sanity of the computation. A value ten times
+! smaller will be used for the systematic check of IR poles at
+! runtime.
+! Notice that the systematic comparison of IR poles at run time is
+! only performed when the Monte-Carlo over helicity configurations
+! method is not used.  Set this value to '-1.0d0' if you want the
+! check to always pass.
+#IRPoleCheckThreshold
+-1d0
+! Default :: 1.0d-5
+!
+! ==========================================================================
+! OLP (virtuals) behavior at run time
+! ==========================================================================
+!
+!
+! Set the precision required from the OLP code. The IR poles check
+! will be performed at run time with a threshold ten times loser than
+! the value below. When equal to '-1d0' the default value of the OLP
+! is used, and the poles check is disabled at run time
+!
+#PrecisionVirtualAtRunTime
+-1d0
+! Default :: 1.0d-3
+!
+! ==========================================================================
+! Parameters defining the techniques used for the MC integration
+! ==========================================================================
+!
+! This integer sets what is the minimum number of contributing
+! helicities (in a given subrpocess) which is necessary for MadFKS to
+! switch to the Monte-Carlo over helicity configurations method. Set
+! this to '-1' if you want to forbid the use of this method
+! altogether.
+#NHelForMCoverHels
+4
+! Default :: 4
+!
+! This parameter sets for which fraction of the events the virtual
+! matrix elements should be included. When using MINT, during the
+! grid-setup phase, this number will be updated automatically after
+! each iteration depending on the relative MC uncertainties.
+#VirtualFraction
+1.0d0
+! Default :: 1.0d0
+!
+! This parameter sets the minimal fraction of the events for which the
+! virtual matrix elements should be included.
+#MinVirtualFraction
+0.005d0
+! Default :: 0.005d0
+!
+! ==========================================================================
+! End of FKS_params.dat file
+! ==========================================================================
 EOF
 
-cat > $d/ggh012j_5f_NLO_FXFX_${MH}_proc_card.dat <<EOF
-import model HC_NLO_X0_UFO-heft
 
-generate p p > x0 / t [QCD] @0
-add process p p > x0 j / t [QCD] @1
-add process p p > x0 j j / t [QCD] @2
+cat > $d/vbfH${MH}_NLO_HtoGG_proc_card.dat <<EOF
+import model loop_sm-no_b_mass
 
-output ggh012j_5f_NLO_FXFX_${MH} -nojpeg
+generate p p > h j j \$\$ w+ w- z [QCD]
+
+output vbfH${MH}_NLO_HtoGG -nojpeg
 EOF
 
-cat > $d/ggh012j_5f_NLO_FXFX_${MH}_run_card.dat <<EOF
-#*******************                                                 
+cat > $d/vbfH${MH}_NLO_HtoGG_run_card.dat <<EOF
+*******************                                                 
 # Running parameters
 #*******************                                                 
 #
@@ -36,7 +112,7 @@ cat > $d/ggh012j_5f_NLO_FXFX_${MH}_run_card.dat <<EOF
 # (relative) accuracy on the Xsec.                                     *
 # These values are ignored for fixed order runs                        *
 #***********************************************************************
-  1500 = nevents ! Number of unweighted events requested 
+   250 = nevents ! Number of unweighted events requested 
  0.001 = req_acc ! Required accuracy (-1=auto determined from nevents)
     20 = nevt_job! Max number of events per job in event generation. 
                  !  (-1= no split).
@@ -72,7 +148,7 @@ average = event_norm ! Normalize events to sum or average to the X sect.
 # shower (HERWIG6 | HERWIGPP | PYTHIA6Q | PYTHIA6PT | PYTHIA8)         *
 # WARNING: PYTHIA6PT works only for processes without FSR!!!!          *
 #***********************************************************************
-  PYTHIA8   = parton_shower
+ PYTHIA8   = parton_shower
 #***********************************************************************
 # Renormalization and factorization scales                             *
 # (Default functional form for the non-fixed scales is the sum of      *
@@ -99,10 +175,10 @@ average = event_norm ! Normalize events to sum or average to the X sect.
 # For PDF uncertainty: use LHAPDF with supported set                   *
 #***********************************************************************
  .true.   = reweight_scale   ! reweight to get scale dependence
-  0.5     = rw_Rscale_down   ! lower bound for ren scale variations
-  2.0     = rw_Rscale_up     ! upper bound for ren scale variations
-  0.5     = rw_Fscale_down   ! lower bound for fact scale variations
-  2.0     = rw_Fscale_up     ! upper bound for fact scale variations
+ 0.5     = rw_Rscale_down   ! lower bound for ren scale variations
+ 2.0     = rw_Rscale_up     ! upper bound for ren scale variations
+ 0.5     = rw_Fscale_down   ! lower bound for fact scale variations
+ 2.0     = rw_Fscale_up     ! upper bound for fact scale variations
  \$DEFAULT_PDF_MEMBERS = reweight_PDF     ! reweight to get PDF uncertainty
       ! First of the error PDF sets 
       ! Last of the error PDF sets
@@ -111,7 +187,7 @@ average = event_norm ! Normalize events to sum or average to the X sect.
 # After showering an MLM-type merging should be applied as well.       *
 # See http://amcatnlo.cern.ch/FxFx_merging.htm for more details.       *
 #***********************************************************************
- 3        = ickkw            ! 0 no merging, 3 FxFx merging
+ 0        = ickkw            ! 0 no merging, 3 FxFx merging
 #***********************************************************************
 #
 #***********************************************************************
@@ -126,8 +202,8 @@ average = event_norm ! Normalize events to sum or average to the X sect.
 # (more specific cuts can be specified in SubProcesses/cuts.f)         *
 #***********************************************************************
    1  = jetalgo   ! FastJet jet algorithm (1=kT, 0=C/A, -1=anti-kT)
- 1.0  = jetradius ! The radius parameter for the jet algorithm
-  10  = ptj       ! Min jet transverse momentum
+ 0.7  = jetradius ! The radius parameter for the jet algorithm
+ 0.01  = ptj       ! Min jet transverse momentum
   -1  = etaj      ! Max jet abs(pseudo-rap) (a value .lt.0 means no cut)
 #***********************************************************************
 # Cuts on the charged leptons (e+, e-, mu+, mu-, tau+ and tau-)        *
